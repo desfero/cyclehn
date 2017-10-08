@@ -1,3 +1,5 @@
+import * as Snabbdom from 'snabbdom-pragma';
+
 import { FeedItem } from '../interfaces';
 
 import { VNode } from '@cycle/dom';
@@ -18,7 +20,7 @@ function view(props: FeedItem | 'skeleton'): VNode {
     return <article className={`media ${props === 'skeleton' ? 'skeleton' : 'app-container'}`}>
         <div data-skeletonprimary className="media-left">
             <span className="has-text-info points is-size-4">
-                {item.points}{!item.points && item.title ? <span className="bd-emoji">📢</span> : ''}
+                {!item.points && item.title ? <span className="bd-emoji">📢</span> : item.points}
             </span>
         </div>
         <div className="media-content">

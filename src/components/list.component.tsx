@@ -1,3 +1,5 @@
+import * as Snabbdom from 'snabbdom-pragma';
+
 import xs, { Stream } from 'xstream';
 import { a, VNode } from '@cycle/dom';
 

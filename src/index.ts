@@ -10,14 +10,44 @@ import { timeDriver } from '@cycle/time';
 import isolate from '@cycle/isolate';
 import onionify from 'cycle-onionify';
 
-import { Component, Sources, RootSinks } from './interfaces';
+import { Component } from './interfaces';
 import { App } from './app';
 
 import { routerify } from 'cyclic-router';
 import { makeHistoryDriver } from '@cycle/history';
 import switchPath from 'switch-path';
 
-const main: Component = onionify(App);
+function snapshotFilter(appFn: any): any {
+    const snapshot = (window as any).SERVER_SNAPSHOT || {};
+
+    return function wrappedAppFn(sources: any): any {
+        const sinks = appFn(sources);
+
+        return Object.keys(sinks)
+            .reduce((p: any, sinkName: string) => {
+                let sink = sinks[sinkName];
+
+                if (snapshot[sinkName]) {
+                    const sn = snapshot[sinkName];
+                    sink = sink.filter((x: any) => {
+                        if (sinks[sinkName]) {
+                            if (x.toString() === sn.toString()) {
+                                sinks[sinkName] = undefined;
+                            }
+
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
+
+                return { ...p, [sinkName]: sink };
+            }, {});
+    };
+}
+
+const main: Component = onionify(snapshotFilter(App));
 
 let drivers: any, driverFn: any;
 /// #if PRODUCTION
